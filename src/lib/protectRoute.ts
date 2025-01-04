@@ -15,7 +15,9 @@ export const protectRoute = (handler: (req: NextApiRequest, res: NextApiResponse
       req.user = decoded;
       return handler(req, res);
     } catch (err) {
-      return res.status(401).json({ message: "Invalid or expired token" });
+      if (err instanceof Error) {
+        return res.status(401).json({ message: err.message });
+      }
     }
   };
 };
