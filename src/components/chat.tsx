@@ -162,7 +162,7 @@ const Chat = () => {
       <div className='flex justify-center items-center w-dvw h-dvh text-red-500 text-2xl'>
         An error occured.{' '}
         <div className='leading-5'>
-          <div className='block'>
+          <div>
             <Link href='/login' className='block'>
               Login,
             </Link>{' '}
