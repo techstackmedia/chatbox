@@ -4,16 +4,20 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import io, { Socket } from 'socket.io-client';
 import Link from 'next/link';
+import { format } from 'date-fns';
 
 let socket: Socket;
 
 interface UserProfile {
   username: string;
   email: string;
+  createdAt: Date;
 }
 
 const Chat = () => {
-  const [messages, setMessages] = useState<{ text: string; user: string }[]>(
+  const [messages, setMessages] = useState<{
+    createdAt: string | number | Date; text: string; user: string 
+}[]>(
     []
   );
   const [message, setMessage] = useState<string>('');
@@ -124,7 +128,11 @@ const Chat = () => {
       return;
     }
 
-    const newMessage = { text: message, user };
+    const newMessage = {
+      text: message,
+      user,
+      createdAt: new Date().toISOString(),
+    };
     socket?.emit('sendMessage', newMessage);
 
     try {
@@ -209,6 +217,9 @@ const Chat = () => {
                   : `${msg.user[0].toUpperCase()}${msg.user.substring(1)}`}
               </strong>
               : {msg.text}
+              <div className='text-xs text-gray-500 mt-1'>
+                {format(new Date(msg.createdAt), 'dd MMM yyyy, HH:mm')}
+              </div>
             </div>
           </div>
         ))}
