@@ -72,7 +72,7 @@ const Chat = () => {
 
     fetchMessages();
 
-    socket = io(process.env.NODE_ENV === "production" ? "https://bellochat.vercel.app" : 'https://bellochat.vercel.app/api/socket.io', {
+    socket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
       extraHeaders: {
         Authorization: `Bearer ${token}`,
       },
