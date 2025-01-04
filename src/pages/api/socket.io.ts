@@ -36,7 +36,6 @@ const SocketHandler = (req: NextApiRequest, res: NextApiResponse): void => {
     io.on("connection", (socket) => {
       console.log("User connected");
 
-      // Extract token from headers (make sure it's in the format 'Bearer <token>')
       const token = socket.handshake.headers["authorization"]?.split(" ")[1];
       if (!token) {
         socket.emit("error", "Authentication required");
