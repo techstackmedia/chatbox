@@ -1,12 +1,10 @@
-"use client";
+"use client"
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import io, { Socket } from "socket.io-client";
 import Link from "next/link";
 import { format } from "date-fns";
-
-let socket: Socket;
 
 interface UserProfile {
   username: string;
@@ -28,6 +26,7 @@ const Chat = () => {
   const [profileLoading, setProfileLoading] = useState(false);
   const router = useRouter();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const socket = useRef<Socket | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -57,7 +56,7 @@ const Chat = () => {
       router.push("/login");
       return;
     }
-
+  
     const fetchMessages = async () => {
       const res = await fetch("/api/messages", {
         headers: { Authorization: `Bearer ${token}` },
@@ -69,29 +68,37 @@ const Chat = () => {
         console.error("Failed to fetch messages");
       }
     };
-
+  
     fetchMessages();
-
-    socket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
+  
+    socket.current = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
       extraHeaders: {
         Authorization: `Bearer ${token}`,
       },
     });
-
-    socket.on("receiveMessage", (msg) => {
+  
+    socket.current.on("receiveMessage", (msg) => {
       setMessages((prev) => [...prev, msg]);
     });
-
-    socket.on("connect", () => {
+  
+    socket.current.on("connect", () => {
       console.log("Connected to WebSocket");
     });
-
-    socket.on("disconnect", () => {
+  
+    socket.current.on("disconnect", () => {
       console.log("Disconnected from WebSocket");
     });
-
+  
+    socket.current.on("connect_error", (error) => {
+      console.error("Connection error:", error);
+    });
+  
+    socket.current.on("error", (error) => {
+      console.error("Socket.IO error:", error);
+    });
+  
     return () => {
-      if (socket) socket.disconnect();
+      if (socket.current) socket.current.disconnect();
     };
   }, [router]);
 
@@ -140,15 +147,17 @@ const Chat = () => {
       router.push("/login");
       return;
     }
-
+  
     const newMessage = {
       text: message,
       user,
       createdAt: new Date().toISOString(),
     };
-
-    socket?.emit("sendMessage", newMessage);
-
+  
+    if (socket.current) {
+      socket.current.emit("sendMessage", newMessage);
+    }
+  
     try {
       const res = await fetch("/api/messages", {
         method: "POST",
@@ -164,7 +173,7 @@ const Chat = () => {
         setProfileError(error.message);
       }
     }
-
+  
     setMessages((prev) => [...prev, newMessage]);
     setMessage("");
   };
@@ -223,41 +232,30 @@ const Chat = () => {
               className={`max-w-xs p-2 rounded-lg ${
                 msg.user === profile?.username
                   ? "bg-blue-500 text-white"
-                  : "bg-gray-300"
+                  : "bg-gray-200"
               }`}
             >
-              <strong>
-                {msg.user === profile?.username
-                  ? "You"
-                  : `${msg.user[0].toUpperCase()}${msg.user.substring(1)}`}
-              </strong>
-              : {msg.text}
-              <div
-                className={`text-xs ${
-                  msg.user === profile?.username
-                    ? "text-backgeound"
-                    : "text-gray-500"
-                } mt-1`}
-              >
-                {format(new Date(msg.createdAt), "dd MMM yyyy, HH:mm")}
-              </div>
+              <p>{msg.text}</p>
+              <small className="text-xs text-gray-500">
+                {format(new Date(msg.createdAt), "yyyy-MM-dd HH:mm:ss")}
+              </small>
             </div>
           </div>
         ))}
         <div ref={messagesEndRef} />
       </main>
 
-      <footer className="p-4 bg-gray-200 fixed bottom-0 w-full flex items-center mt-20">
+      <footer className="p-4 bg-gray-200 flex justify-between">
         <input
           type="text"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
+          className="w-full p-2 border rounded-lg"
           placeholder="Type your message..."
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
         />
         <button
           onClick={sendMessage}
-          className="ml-2 bg-blue-600 text-white px-4 py-2 rounded-lg"
+          className="ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg"
         >
           Send
         </button>
