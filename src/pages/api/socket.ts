@@ -1,11 +1,13 @@
-import { Server } from "socket.io";
+import { Server as IoServer } from "socket.io";
+import { Server as HttpServer } from "http";
 import { NextApiRequest, NextApiResponse } from "next";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+
 dotenv.config();
 
 interface CustomSocket extends NodeJS.Socket {
-  server: any;
+  server: HttpServer & { io?: IoServer };
 }
 
 const SocketHandler = (req: NextApiRequest, res: NextApiResponse): void => {
@@ -21,7 +23,7 @@ const SocketHandler = (req: NextApiRequest, res: NextApiResponse): void => {
     console.log("Socket.IO is already running");
   } else {
     console.log("Initializing Socket.IO server");
-    const io = new Server(socket.server, {
+    const io = new IoServer(socket.server, {
       path: "/api/socket.io",
       cors: {
         origin: "*",

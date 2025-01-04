@@ -1,7 +1,7 @@
 import { connectToDatabase } from "@/lib/db";
 import { NextApiRequest, NextApiResponse } from "next";
 import jwt from "jsonwebtoken";
-import { ObjectId } from "mongodb"; // Import ObjectId
+import { ObjectId } from "mongodb";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void> {
   if (req.method === "GET") {
@@ -28,8 +28,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       const { _id, username, email } = user;
       res.status(200).json({ _id, username, email });
-    } catch (error: any) {
-      console.error("Error verifying token:", error.message);
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error("Error verifying token:", error.message);
+      }
       return res.status(401).json({ message: "Unauthorized" });
     }
   } else {
