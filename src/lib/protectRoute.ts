@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
 
-export const protectRoute = (handler: (arg0: NextApiRequest, arg1: NextApiResponse) => any) => {
+export const protectRoute = (handler: (req: NextApiRequest, res: NextApiResponse) => void | Promise<void>) => {
   return async (req: NextApiRequest, res: NextApiResponse) => {
     try {
       const token = req.headers["authorization"]?.split(" ")[1];
