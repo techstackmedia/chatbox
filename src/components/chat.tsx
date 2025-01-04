@@ -165,7 +165,7 @@ const Chat = () => {
             Login,
           </Link>
         </p>
-        No token or token is expired
+        no token or token expired (1 hr)
       </div>
     );
   if (profileLoading)
