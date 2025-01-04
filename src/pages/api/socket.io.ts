@@ -26,7 +26,7 @@ const SocketHandler = (req: NextApiRequest, res: NextApiResponse): void => {
     const io = new IoServer(socket.server, {
       path: "/api/socket.io",
       cors: {
-        origin: "*",
+        origin: process.env.NODE_ENV === "production" ? "https://bellochat.vercel.app" : "*",
         methods: ["GET", "POST"],
       },
     });
@@ -36,8 +36,8 @@ const SocketHandler = (req: NextApiRequest, res: NextApiResponse): void => {
     io.on("connection", (socket) => {
       console.log("User connected");
 
-      const token =
-        socket.handshake.query.token || socket.handshake.headers["authorization"];
+      // Extract token from headers (make sure it's in the format 'Bearer <token>')
+      const token = socket.handshake.headers["authorization"]?.split(" ")[1];
       if (!token) {
         socket.emit("error", "Authentication required");
         socket.disconnect();
