@@ -160,15 +160,12 @@ const Chat = () => {
   if (profileError)
     return (
       <div className='flex justify-center items-center w-dvw h-dvh text-red-500 text-2xl'>
-        An error occured.{' '}
-        <div className='leading-5'>
-          <div>
-            <Link href='/login' className='block'>
-              Login,
-            </Link>{' '}
-            No token or token is expired
-          </div>
-        </div>
+        <p>
+          <Link href='/login' className='underline'>
+            Login,
+          </Link>
+        </p>
+        No token or token is expired
       </div>
     );
   if (profileLoading)
