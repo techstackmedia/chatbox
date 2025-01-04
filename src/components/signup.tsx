@@ -37,7 +37,9 @@ const Signup = () => {
         router?.push("/login");
       }
     } catch (err) {
-      setError("Network error. Please try again.");
+      if (err instanceof Error) {
+        setError("Network error. Please try again.");
+      }
     }
   };
 
