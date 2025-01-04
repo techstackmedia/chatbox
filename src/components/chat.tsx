@@ -15,11 +15,13 @@ interface UserProfile {
 }
 
 const Chat = () => {
-  const [messages, setMessages] = useState<{
-    createdAt: string | number | Date; text: string; user: string 
-}[]>(
-    []
-  );
+  const [messages, setMessages] = useState<
+    {
+      createdAt: string | number | Date;
+      text: string;
+      user: string;
+    }[]
+  >([]);
   const [message, setMessage] = useState<string>('');
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [profileError, setProfileError] = useState('');
@@ -159,10 +161,14 @@ const Chat = () => {
     return (
       <div className='flex justify-center items-center w-dvw h-dvh text-red-500 text-2xl'>
         An error occured.{' '}
-        <>
-          <Link href='/login'>Try again later</Link>
-          <small>Login, token is expired</small>
-        </>
+        <div className='leading-5'>
+          <div className='block'>
+            <Link href='/login' className='block'>
+              Login,
+            </Link>{' '}
+            No token or token is expired
+          </div>
+        </div>
       </div>
     );
   if (profileLoading)
@@ -217,7 +223,13 @@ const Chat = () => {
                   : `${msg.user[0].toUpperCase()}${msg.user.substring(1)}`}
               </strong>
               : {msg.text}
-              <div className='text-xs text-gray-500 mt-1'>
+              <div
+                className={`text-xs ${
+                  msg.user === profile?.username
+                    ? 'text-backgeound'
+                    : 'text-gray-500'
+                } mt-1`}
+              >
                 {format(new Date(msg.createdAt), 'dd MMM yyyy, HH:mm')}
               </div>
             </div>
